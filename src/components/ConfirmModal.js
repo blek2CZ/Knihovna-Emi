@@ -11,8 +11,10 @@ import {
   StyleSheet,
   Platform,
 } from 'react-native';
+import { useTheme } from '../context/ThemeContext';
 
 export default function ConfirmModal({ visible, title, message, onConfirm, onCancel }) {
+  const { colors } = useTheme();
   return (
     <Modal
       visible={visible}
@@ -20,25 +22,15 @@ export default function ConfirmModal({ visible, title, message, onConfirm, onCan
       animationType="fade"
       onRequestClose={onCancel}
     >
-      <View style={styles.overlay}>
-        <View style={styles.dialog}>
-          {title ? <Text style={styles.title}>{title}</Text> : null}
-          {message ? <Text style={styles.message}>{message}</Text> : null}
-
+      <View style={[styles.overlay, { backgroundColor: colors.modalOverlay }]}>
+        <View style={[styles.dialog, { backgroundColor: colors.modalBg }]}>
+          {title ? <Text style={[styles.title, { color: colors.text }]}>{title}</Text> : null}
+          {message ? <Text style={[styles.message, { color: colors.textSub }]}>{message}</Text> : null}
           <View style={styles.buttons}>
-            {/* Zrušit */}
-            <TouchableOpacity
-              style={[styles.button, styles.cancelButton]}
-              onPress={onCancel}
-            >
-              <Text style={styles.cancelText}>Zrušit</Text>
+            <TouchableOpacity style={[styles.button, { backgroundColor: colors.cancelBtn }]} onPress={onCancel}>
+              <Text style={[styles.cancelText, { color: colors.cancelText }]}>Zrušit</Text>
             </TouchableOpacity>
-
-            {/* Potvrdit smazání */}
-            <TouchableOpacity
-              style={[styles.button, styles.confirmButton]}
-              onPress={onConfirm}
-            >
+            <TouchableOpacity style={[styles.button, styles.confirmButton]} onPress={onConfirm}>
               <Text style={styles.confirmText}>Smazat</Text>
             </TouchableOpacity>
           </View>
@@ -51,18 +43,15 @@ export default function ConfirmModal({ visible, title, message, onConfirm, onCan
 const styles = StyleSheet.create({
   overlay: {
     flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
     justifyContent: 'center',
     alignItems: 'center',
     padding: 20,
   },
   dialog: {
-    backgroundColor: '#fff',
     borderRadius: 14,
     padding: 24,
     width: '100%',
     maxWidth: 400,
-    // Stín
     elevation: 10,
     shadowColor: '#000',
     shadowOpacity: 0.25,
@@ -72,12 +61,10 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 18,
     fontWeight: 'bold',
-    color: '#222',
     marginBottom: 10,
   },
   message: {
     fontSize: 14,
-    color: '#555',
     lineHeight: 20,
     marginBottom: 24,
   },
@@ -93,11 +80,8 @@ const styles = StyleSheet.create({
     minWidth: 80,
     alignItems: 'center',
   },
-  cancelButton: {
-    backgroundColor: '#f0f0f0',
-  },
+  cancelButton: {},
   cancelText: {
-    color: '#444',
     fontSize: 14,
     fontWeight: '500',
   },

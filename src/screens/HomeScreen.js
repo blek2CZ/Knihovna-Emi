@@ -16,6 +16,7 @@ import { useFocusEffect } from '@react-navigation/native';
 import { getBooks, deleteBook } from '../services/storage';
 import BookCard from '../components/BookCard';
 import ConfirmModal from '../components/ConfirmModal';
+import { useTheme } from '../context/ThemeContext';
 
 // Možnosti filtru podle formátu
 const FORMAT_OPTIONS = [
@@ -33,6 +34,7 @@ const SORT_OPTIONS = [
 ];
 
 export default function HomeScreen({ navigation }) {
+  const { colors, dark, toggleTheme } = useTheme();
   const [books, setBooks] = useState([]);
   const [search, setSearch] = useState('');
   const [filterFormat, setFilterFormat] = useState('all');
@@ -86,11 +88,17 @@ export default function HomeScreen({ navigation }) {
   }
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, { backgroundColor: colors.bg }]}>
+      {/* Přepínač tématu */}
+      <TouchableOpacity onPress={toggleTheme} style={styles.themeToggle}>
+        <Text style={styles.themeToggleIcon}>{dark ? '☀️' : '🌙'}</Text>
+      </TouchableOpacity>
+
       {/* Pole vyhledávání */}
       <TextInput
-        style={styles.searchInput}
+        style={[styles.searchInput, { backgroundColor: colors.input, borderColor: colors.inputBorder, color: colors.text }]}
         placeholder="🔍  Hledat podle názvu nebo autora..."
+        placeholderTextColor={colors.textMuted}
         value={search}
         onChangeText={setSearch}
         clearButtonMode="while-editing"
@@ -109,6 +117,7 @@ export default function HomeScreen({ navigation }) {
             key={opt.value}
             style={[
               styles.chip,
+              { backgroundColor: colors.chip },
               filterFormat === opt.value && styles.chipActive,
             ]}
             onPress={() => setFilterFormat(opt.value)}
@@ -116,6 +125,7 @@ export default function HomeScreen({ navigation }) {
             <Text
               style={[
                 styles.chipText,
+                { color: colors.chipText },
                 filterFormat === opt.value && styles.chipTextActive,
               ]}
             >
@@ -127,13 +137,14 @@ export default function HomeScreen({ navigation }) {
 
       {/* Řazení */}
       <View style={styles.sortRow}>
-        <Text style={styles.sortLabel}>Řadit:</Text>
+        <Text style={[styles.sortLabel, { color: colors.sortLabel }]}>Řadit:</Text>
         {SORT_OPTIONS.map((opt) => (
           <TouchableOpacity
             key={opt.value}
             style={[
               styles.chip,
               styles.chipSort,
+              { backgroundColor: colors.chip },
               sortBy === opt.value && styles.chipSortActive,
             ]}
             onPress={() => setSortBy(opt.value)}
@@ -141,6 +152,7 @@ export default function HomeScreen({ navigation }) {
             <Text
               style={[
                 styles.chipText,
+                { color: colors.chipText },
                 sortBy === opt.value && styles.chipTextActive,
               ]}
             >
@@ -151,7 +163,7 @@ export default function HomeScreen({ navigation }) {
       </View>
 
       {/* Počet výsledků */}
-      <Text style={styles.countText}>
+      <Text style={[styles.countText, { color: colors.countText }]}>
         {bookCountLabel(filteredBooks.length)}
         {search || filterFormat !== 'all' ? ' (filtrováno)' : ''}
       </Text>
@@ -170,7 +182,7 @@ export default function HomeScreen({ navigation }) {
         ListEmptyComponent={
           <View style={styles.emptyContainer}>
             <Text style={styles.emptyIcon}>📚</Text>
-            <Text style={styles.emptyText}>
+            <Text style={[styles.emptyText, { color: colors.textMuted }]}>
               {loading
                 ? 'Načítám...'
                 : search || filterFormat !== 'all'
@@ -206,17 +218,22 @@ export default function HomeScreen({ navigation }) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f2f4f7',
     padding: 12,
   },
+  themeToggle: {
+    alignSelf: 'flex-end',
+    marginBottom: 4,
+    padding: 4,
+  },
+  themeToggleIcon: {
+    fontSize: 20,
+  },
   searchInput: {
-    backgroundColor: '#fff',
     borderRadius: 10,
     paddingHorizontal: 12,
     paddingVertical: 10,
     fontSize: 14,
     borderWidth: 1,
-    borderColor: '#ddd',
     marginBottom: 10,
   },
   filtersRow: {
@@ -235,14 +252,12 @@ const styles = StyleSheet.create({
   },
   sortLabel: {
     fontSize: 13,
-    color: '#666',
     marginRight: 2,
   },
   chip: {
     paddingHorizontal: 14,
     paddingVertical: 6,
     borderRadius: 20,
-    backgroundColor: '#e0e0e0',
   },
   chipActive: {
     backgroundColor: '#3498db',
@@ -256,7 +271,6 @@ const styles = StyleSheet.create({
   },
   chipText: {
     fontSize: 13,
-    color: '#555',
     fontWeight: '500',
   },
   chipTextActive: {
@@ -265,11 +279,10 @@ const styles = StyleSheet.create({
   },
   countText: {
     fontSize: 12,
-    color: '#999',
     marginBottom: 6,
   },
   listContent: {
-    paddingBottom: 88, // rezerva pro FAB
+    paddingBottom: 88,
   },
   emptyContainer: {
     alignItems: 'center',
@@ -281,12 +294,10 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   emptyText: {
-    color: '#aaa',
     fontSize: 15,
     textAlign: 'center',
     lineHeight: 22,
   },
-  // Plovoucí akční tlačítko
   fab: {
     position: 'absolute',
     bottom: 24,

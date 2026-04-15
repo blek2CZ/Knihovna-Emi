@@ -25,76 +25,98 @@
   <div id="links"></div>
 
   <script>
+    function roundRect(ctx, x, y, w, h, r) {
+      ctx.beginPath();
+      ctx.moveTo(x + r, y);
+      ctx.lineTo(x + w - r, y);
+      ctx.quadraticCurveTo(x + w, y, x + w, y + r);
+      ctx.lineTo(x + w, y + h - r);
+      ctx.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
+      ctx.lineTo(x + r, y + h);
+      ctx.quadraticCurveTo(x, y + h, x, y + h - r);
+      ctx.lineTo(x, y + r);
+      ctx.quadraticCurveTo(x, y, x + r, y);
+      ctx.closePath();
+    }
+
     function drawBookIcon(ctx, size) {
       const s = size;
 
-      // ── Pozadí (modré, zaoblené) ──────────────────────────────────
-      const r = s * 0.18; // rádius zaoblení
-      ctx.beginPath();
-      ctx.moveTo(r, 0);
-      ctx.lineTo(s - r, 0);
-      ctx.quadraticCurveTo(s, 0, s, r);
-      ctx.lineTo(s, s - r);
-      ctx.quadraticCurveTo(s, s, s - r, s);
-      ctx.lineTo(r, s);
-      ctx.quadraticCurveTo(0, s, 0, s - r);
-      ctx.lineTo(0, r);
-      ctx.quadraticCurveTo(0, 0, r, 0);
-      ctx.closePath();
-      ctx.fillStyle = '#3498db';
+      // ── Pozadí (tmavě modrá, zaoblená) ───────────────────────────
+      roundRect(ctx, 0, 0, s, s, s * 0.18);
+      ctx.fillStyle = '#1a2a4a';
       ctx.fill();
 
-      // ── Tělo knihy (bílé) ─────────────────────────────────────────
-      const bx = s * 0.18;  // levý okraj
-      const by = s * 0.14;  // horní okraj
-      const bw = s * 0.64;  // šířka
-      const bh = s * 0.72;  // výška
-      const br = s * 0.04;  // zaoblení knihy
-
-      ctx.beginPath();
-      ctx.moveTo(bx + br, by);
-      ctx.lineTo(bx + bw - br, by);
-      ctx.quadraticCurveTo(bx + bw, by, bx + bw, by + br);
-      ctx.lineTo(bx + bw, by + bh - br);
-      ctx.quadraticCurveTo(bx + bw, by + bh, bx + bw - br, by + bh);
-      ctx.lineTo(bx + br, by + bh);
-      ctx.quadraticCurveTo(bx, by + bh, bx, by + bh - br);
-      ctx.lineTo(bx, by + br);
-      ctx.quadraticCurveTo(bx, by, bx + br, by);
-      ctx.closePath();
-      ctx.fillStyle = '#ffffff';
+      // ── Horní kniha (zelená, nakloněná) ──────────────────────────
+      ctx.save();
+      ctx.translate(s * 0.5, s * 0.38);
+      ctx.rotate(-0.18);
+      roundRect(ctx, -s * 0.28, -s * 0.19, s * 0.56, s * 0.38, s * 0.04);
+      ctx.fillStyle = '#27ae60';
       ctx.fill();
-
-      // ── Hřbet knihy (tmavomodrý pruh vlevo) ──────────────────────
-      ctx.fillStyle = '#2471a3';
-      ctx.fillRect(bx, by, s * 0.10, bh);
-
-      // ── Linka oddělující hřbet ─────────────────────────────────────
-      ctx.fillStyle = '#1a5276';
-      ctx.fillRect(bx + s * 0.10, by, s * 0.015, bh);
-
-      // ── Řádky textu (simulace stránek) ───────────────────────────
-      ctx.fillStyle = '#aed6f1';
-      const lineX = bx + s * 0.16;
-      const lineW = bw * 0.62;
-      const lineStartY = by + s * 0.13;
-      const lineGap = s * 0.085;
-      for (let i = 0; i < 7; i++) {
-        const w = i % 3 === 2 ? lineW * 0.55 : lineW; // každý třetí řádek kratší
-        ctx.fillRect(lineX, lineStartY + i * lineGap, w, s * 0.035);
+      // hřbet
+      ctx.fillStyle = '#1e8449';
+      ctx.fillRect(-s * 0.28, -s * 0.19, s * 0.09, s * 0.38);
+      // stránky (světlý okraj vpravo)
+      ctx.fillStyle = '#f0f0e8';
+      ctx.fillRect(s * 0.21, -s * 0.17, s * 0.05, s * 0.34);
+      // řádky textu
+      ctx.fillStyle = 'rgba(255,255,255,0.35)';
+      for (let i = 0; i < 4; i++) {
+        const w = i === 3 ? s * 0.22 : s * 0.32;
+        ctx.fillRect(-s * 0.14, -s * 0.10 + i * s * 0.065, w, s * 0.028);
       }
+      ctx.restore();
 
-      // ── Záložka (červená páska vpravo nahoře) ────────────────────
-      const mx = bx + bw - s * 0.12;
-      ctx.fillStyle = '#e74c3c';
+      // ── Střední kniha (červená, mírně nakloněná) ──────────────────
+      ctx.save();
+      ctx.translate(s * 0.5, s * 0.55);
+      ctx.rotate(0.08);
+      roundRect(ctx, -s * 0.30, -s * 0.19, s * 0.60, s * 0.38, s * 0.04);
+      ctx.fillStyle = '#c0392b';
+      ctx.fill();
+      ctx.fillStyle = '#962d22';
+      ctx.fillRect(-s * 0.30, -s * 0.19, s * 0.09, s * 0.38);
+      ctx.fillStyle = '#f0f0e8';
+      ctx.fillRect(s * 0.23, -s * 0.17, s * 0.05, s * 0.34);
+      ctx.fillStyle = 'rgba(255,255,255,0.35)';
+      for (let i = 0; i < 4; i++) {
+        const w = i === 3 ? s * 0.24 : s * 0.34;
+        ctx.fillRect(-s * 0.16, -s * 0.10 + i * s * 0.065, w, s * 0.028);
+      }
+      ctx.restore();
+
+      // ── Spodní kniha (modrá, rovná) – hlavní ─────────────────────
+      ctx.save();
+      ctx.translate(s * 0.5, s * 0.72);
+      roundRect(ctx, -s * 0.32, -s * 0.17, s * 0.64, s * 0.34, s * 0.04);
+      ctx.fillStyle = '#2980b9';
+      ctx.fill();
+      ctx.fillStyle = '#1f618d';
+      ctx.fillRect(-s * 0.32, -s * 0.17, s * 0.09, s * 0.34);
+      ctx.fillStyle = '#f0f0e8';
+      ctx.fillRect(s * 0.25, -s * 0.15, s * 0.05, s * 0.30);
+      ctx.fillStyle = 'rgba(255,255,255,0.35)';
+      for (let i = 0; i < 3; i++) {
+        const w = i === 2 ? s * 0.26 : s * 0.36;
+        ctx.fillRect(-s * 0.18, -s * 0.08 + i * s * 0.065, w, s * 0.028);
+      }
+      ctx.restore();
+
+      // ── Záložka (žlutá stuha) na horní knize ─────────────────────
+      ctx.save();
+      ctx.translate(s * 0.5, s * 0.38);
+      ctx.rotate(-0.18);
+      ctx.fillStyle = '#f1c40f';
       ctx.beginPath();
-      ctx.moveTo(mx, by);
-      ctx.lineTo(mx + s * 0.09, by);
-      ctx.lineTo(mx + s * 0.09, by + s * 0.25);
-      ctx.lineTo(mx + s * 0.045, by + s * 0.21);
-      ctx.lineTo(mx, by + s * 0.25);
+      ctx.moveTo(s * 0.18, -s * 0.19);
+      ctx.lineTo(s * 0.26, -s * 0.19);
+      ctx.lineTo(s * 0.26, s * 0.04);
+      ctx.lineTo(s * 0.22, s * 0.00);
+      ctx.lineTo(s * 0.18, s * 0.04);
       ctx.closePath();
       ctx.fill();
+      ctx.restore();
     }
 
     function createIcon(canvasId, size) {

@@ -16,12 +16,14 @@ import {
 import { useFocusEffect } from '@react-navigation/native';
 import { exportBooks, importBooksFromFile } from '../services/backup';
 import { getBooks } from '../services/storage';
+import { useTheme } from '../context/ThemeContext';
 
 export default function BackupScreen() {
+  const { colors } = useTheme();
   const [exporting, setExporting] = useState(false);
   const [importing, setImporting] = useState(false);
   const [bookCount, setBookCount] = useState(0);
-  const [message, setMessage] = useState(null); // { type: 'success'|'error'|'info', text: string }
+  const [message, setMessage] = useState(null);
 
   // Obnovit počet knih vždy při přepnutí na tuto záložku
   useFocusEffect(
@@ -80,19 +82,19 @@ export default function BackupScreen() {
   const busy = exporting || importing;
 
   return (
-    <ScrollView style={styles.container} contentContainerStyle={styles.content}>
+    <ScrollView style={[styles.container, { backgroundColor: colors.bg }]} contentContainerStyle={styles.content}>
       {/* Přehled */}
-      <View style={styles.infoCard}>
-        <Text style={styles.infoLabel}>Knih v knihovně:</Text>
+      <View style={[styles.infoCard, { backgroundColor: colors.card }]}>
+        <Text style={[styles.infoLabel, { color: colors.textSub }]}>Knih v knihovně:</Text>
         <Text style={styles.infoCount}>{bookCount}</Text>
       </View>
 
       {/* Export */}
-      <View style={styles.section}>
-        <Text style={styles.sectionTitle}>📤  Export zálohy</Text>
-        <Text style={styles.sectionDesc}>
+      <View style={[styles.section, { backgroundColor: colors.card }]}>
+        <Text style={[styles.sectionTitle, { color: colors.text }]}>📤  Export zálohy</Text>
+        <Text style={[styles.sectionDesc, { color: colors.textSub }]}>
           Uloží všechna data do souboru{' '}
-          <Text style={styles.mono}>knihovna_emi_RRRR-MM-DD.json</Text>.{'\n'}
+          <Text style={[styles.mono, { backgroundColor: colors.chip, color: colors.text }]}>knihovna_emi_RRRR-MM-DD.json</Text>.{'\n'}
           Soubor si uložte na bezpečné místo.
         </Text>
         <TouchableOpacity
@@ -109,9 +111,9 @@ export default function BackupScreen() {
       </View>
 
       {/* Import */}
-      <View style={styles.section}>
-        <Text style={styles.sectionTitle}>📥  Import zálohy</Text>
-        <Text style={styles.sectionDesc}>
+      <View style={[styles.section, { backgroundColor: colors.card }]}>
+        <Text style={[styles.sectionTitle, { color: colors.text }]}>📥  Import zálohy</Text>
+        <Text style={[styles.sectionDesc, { color: colors.textSub }]}>
           Načte data ze souboru JSON.{'\n'}
           <Text style={styles.warning}>⚠️  Nahradí VŠECHNA stávající data!</Text>
         </Text>
@@ -138,14 +140,14 @@ export default function BackupScreen() {
             message.type === 'info' && styles.msgInfo,
           ]}
         >
-          <Text style={styles.messageText}>{message.text}</Text>
+          <Text style={[styles.messageText, { color: colors.text }]}>{message.text}</Text>
         </View>
       )}
 
       {/* Formát zálohy – nápověda */}
-      <View style={styles.helpBox}>
-        <Text style={styles.helpTitle}>Formát zálohy</Text>
-        <Text style={styles.helpText}>
+      <View style={[styles.helpBox, { backgroundColor: colors.helpBox, borderColor: colors.helpBorder }]}>
+        <Text style={[styles.helpTitle, { color: colors.textSub }]}>Formát zálohy</Text>
+        <Text style={[styles.helpText, { color: colors.textMuted }]}>
           Záloha je soubor JSON obsahující pole knih s poli:{'\n'}
           id, umisteni, nazev_cz, nazev_original, autor,{'\n'}
           nakladatelstvi, format, hodnoceni, created_at, updated_at
@@ -165,14 +167,12 @@ function bookCountWord(count) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f2f4f7',
   },
   content: {
     padding: 20,
     paddingBottom: 48,
   },
   infoCard: {
-    backgroundColor: '#fff',
     borderRadius: 12,
     padding: 18,
     flexDirection: 'row',
@@ -187,7 +187,6 @@ const styles = StyleSheet.create({
   },
   infoLabel: {
     fontSize: 15,
-    color: '#555',
   },
   infoCount: {
     fontSize: 26,
@@ -195,7 +194,6 @@ const styles = StyleSheet.create({
     color: '#3498db',
   },
   section: {
-    backgroundColor: '#fff',
     borderRadius: 12,
     padding: 18,
     marginBottom: 16,
@@ -208,18 +206,15 @@ const styles = StyleSheet.create({
   sectionTitle: {
     fontSize: 17,
     fontWeight: 'bold',
-    color: '#222',
     marginBottom: 8,
   },
   sectionDesc: {
     fontSize: 13,
-    color: '#666',
     lineHeight: 20,
     marginBottom: 16,
   },
   mono: {
     fontFamily: 'monospace',
-    backgroundColor: '#f0f0f0',
     fontSize: 12,
   },
   warning: {
@@ -267,25 +262,20 @@ const styles = StyleSheet.create({
   },
   messageText: {
     fontSize: 14,
-    color: '#333',
     lineHeight: 20,
   },
   helpBox: {
-    backgroundColor: '#fff',
     borderRadius: 12,
     padding: 16,
     borderWidth: 1,
-    borderColor: '#e8e8e8',
   },
   helpTitle: {
     fontSize: 13,
     fontWeight: '600',
-    color: '#555',
     marginBottom: 6,
   },
   helpText: {
     fontSize: 12,
-    color: '#888',
     lineHeight: 18,
     fontFamily: 'monospace',
   },

@@ -19,6 +19,7 @@ import { Picker } from '@react-native-picker/picker';
 import { generateUUID } from '../utils/uuid';
 import { validateBook } from '../utils/validation';
 import { addBook, updateBook } from '../services/storage';
+import { useTheme } from '../context/ThemeContext';
 
 // Možnosti formátu
 const FORMAT_ITEMS = [
@@ -67,6 +68,7 @@ export default function BookFormScreen({ route, navigation }) {
       : { ...DEFAULT_FORM }
   );
 
+  const { colors } = useTheme();
   const [errors, setErrors] = useState({});
   const [saving, setSaving] = useState(false);
 
@@ -131,21 +133,22 @@ export default function BookFormScreen({ route, navigation }) {
 
   return (
     <KeyboardAvoidingView
-      style={{ flex: 1 }}
+      style={{ flex: 1, backgroundColor: colors.bg }}
       behavior={Platform.OS === 'ios' ? 'padding' : undefined}
     >
       <ScrollView
-        style={styles.container}
+        style={[styles.container, { backgroundColor: colors.bg }]}
         contentContainerStyle={styles.content}
         keyboardShouldPersistTaps="handled"
       >
         {/* ── FORMÁT ── */}
-        <Text style={styles.label}>Formát *</Text>
-        <View style={[styles.pickerWrapper, errors.format && styles.fieldError]}>
+        <Text style={[styles.label, { color: colors.text }]}>Formát *</Text>
+        <View style={[styles.pickerWrapper, { backgroundColor: colors.pickerBg, borderColor: colors.inputBorder }, errors.format && styles.fieldError]}>
           <Picker
             selectedValue={form.format}
             onValueChange={(v) => handleChange('format', v)}
-            style={pickerStyle()}
+            style={[pickerStyle(), { color: colors.text, backgroundColor: colors.pickerBg }]}
+            dropdownIconColor={colors.text}
           >
             {FORMAT_ITEMS.map((item) => (
               <Picker.Item key={item.value} label={item.label} value={item.value} />
@@ -155,77 +158,84 @@ export default function BookFormScreen({ route, navigation }) {
         {errors.format ? <Text style={styles.errorText}>{errors.format}</Text> : null}
 
         {/* ── UMÍSTĚNÍ ── */}
-        <Text style={styles.label}>Umístění *</Text>
+        <Text style={[styles.label, { color: colors.text }]}>Umístění *</Text>
         <TextInput
           style={[
             styles.input,
-            umisteniLocked && styles.inputLocked,
+            { backgroundColor: colors.input, borderColor: colors.inputBorder, color: colors.text },
+            umisteniLocked && { backgroundColor: colors.inputLocked, color: colors.inputLockedText },
             errors.umisteni && styles.fieldError,
           ]}
           value={form.umisteni}
           onChangeText={(v) => handleChange('umisteni', v.toUpperCase())}
           placeholder='Např. "A1B2C" nebo "X"'
+          placeholderTextColor={colors.textMuted}
           maxLength={5}
           editable={!umisteniLocked}
           autoCapitalize="characters"
           autoCorrect={false}
         />
         {umisteniLocked && (
-          <Text style={styles.hint}>
+          <Text style={[styles.hint, { color: colors.textMuted }]}>
             Pro audio / e-knihu se umístění automaticky nastaví na „X".
           </Text>
         )}
         {errors.umisteni ? <Text style={styles.errorText}>{errors.umisteni}</Text> : null}
 
         {/* ── ČESKÝ NÁZEV ── */}
-        <Text style={styles.label}>Český název *</Text>
+        <Text style={[styles.label, { color: colors.text }]}>Český název *</Text>
         <TextInput
-          style={[styles.input, errors.nazev_cz && styles.fieldError]}
+          style={[styles.input, { backgroundColor: colors.input, borderColor: colors.inputBorder, color: colors.text }, errors.nazev_cz && styles.fieldError]}
           value={form.nazev_cz}
           onChangeText={(v) => handleChange('nazev_cz', v)}
           placeholder="Název knihy česky"
+          placeholderTextColor={colors.textMuted}
           returnKeyType="next"
         />
         {errors.nazev_cz ? <Text style={styles.errorText}>{errors.nazev_cz}</Text> : null}
 
         {/* ── ORIGINÁLNÍ NÁZEV ── */}
-        <Text style={styles.label}>Originální název</Text>
+        <Text style={[styles.label, { color: colors.text }]}>Originální název</Text>
         <TextInput
-          style={styles.input}
+          style={[styles.input, { backgroundColor: colors.input, borderColor: colors.inputBorder, color: colors.text }]}
           value={form.nazev_original}
           onChangeText={(v) => handleChange('nazev_original', v)}
           placeholder="Originální název (nepovinné)"
+          placeholderTextColor={colors.textMuted}
           returnKeyType="next"
         />
 
         {/* ── AUTOR ── */}
-        <Text style={styles.label}>Autor *</Text>
+        <Text style={[styles.label, { color: colors.text }]}>Autor *</Text>
         <TextInput
-          style={[styles.input, errors.autor && styles.fieldError]}
+          style={[styles.input, { backgroundColor: colors.input, borderColor: colors.inputBorder, color: colors.text }, errors.autor && styles.fieldError]}
           value={form.autor}
           onChangeText={(v) => handleChange('autor', v)}
           placeholder="Jméno autora"
+          placeholderTextColor={colors.textMuted}
           returnKeyType="next"
         />
         {errors.autor ? <Text style={styles.errorText}>{errors.autor}</Text> : null}
 
         {/* ── NAKLADATELSTVÍ ── */}
-        <Text style={styles.label}>Nakladatelství</Text>
+        <Text style={[styles.label, { color: colors.text }]}>Nakladatelství</Text>
         <TextInput
-          style={styles.input}
+          style={[styles.input, { backgroundColor: colors.input, borderColor: colors.inputBorder, color: colors.text }]}
           value={form.nakladatelstvi}
           onChangeText={(v) => handleChange('nakladatelstvi', v)}
           placeholder="Nakladatelství (nepovinné)"
+          placeholderTextColor={colors.textMuted}
           returnKeyType="next"
         />
 
         {/* ── HODNOCENÍ ── */}
-        <Text style={styles.label}>Hodnocení *</Text>
-        <View style={[styles.pickerWrapper, errors.hodnoceni && styles.fieldError]}>
+        <Text style={[styles.label, { color: colors.text }]}>Hodnocení *</Text>
+        <View style={[styles.pickerWrapper, { backgroundColor: colors.pickerBg, borderColor: colors.inputBorder }, errors.hodnoceni && styles.fieldError]}>
           <Picker
             selectedValue={form.hodnoceni}
             onValueChange={(v) => handleChange('hodnoceni', v)}
-            style={pickerStyle()}
+            style={[pickerStyle(), { color: colors.text, backgroundColor: colors.pickerBg }]}
+            dropdownIconColor={colors.text}
           >
             {RATING_ITEMS.map((item) => (
               <Picker.Item key={item.value} label={item.label} value={item.value} />
@@ -237,10 +247,10 @@ export default function BookFormScreen({ route, navigation }) {
         {/* ── TLAČÍTKA ── */}
         <View style={styles.buttonRow}>
           <TouchableOpacity
-            style={[styles.button, styles.cancelButton]}
+            style={[styles.button, { backgroundColor: colors.cancelBtn }]}
             onPress={() => navigation.goBack()}
           >
-            <Text style={styles.cancelText}>Zrušit</Text>
+            <Text style={[styles.cancelText, { color: colors.cancelText }]}>Zrušit</Text>
           </TouchableOpacity>
 
           <TouchableOpacity
@@ -269,7 +279,6 @@ function pickerStyle() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f2f4f7',
   },
   content: {
     padding: 16,
@@ -277,32 +286,23 @@ const styles = StyleSheet.create({
   },
   label: {
     fontSize: 14,
-    color: '#333',
     fontWeight: '600',
     marginBottom: 4,
     marginTop: 12,
   },
   input: {
-    backgroundColor: '#fff',
     borderWidth: 1,
-    borderColor: '#ddd',
     borderRadius: 8,
     paddingHorizontal: 12,
     paddingVertical: 10,
     fontSize: 14,
-    color: '#222',
   },
-  inputLocked: {
-    backgroundColor: '#f0f0f0',
-    color: '#888',
-  },
+  inputLocked: {},
   fieldError: {
     borderColor: '#e74c3c',
   },
   pickerWrapper: {
-    backgroundColor: '#fff',
     borderWidth: 1,
-    borderColor: '#ddd',
     borderRadius: 8,
     overflow: 'hidden',
   },
@@ -328,13 +328,9 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     alignItems: 'center',
   },
-  cancelButton: {
-    backgroundColor: '#e0e0e0',
-    flex: 1,
-  },
+  cancelButton: {},
   cancelText: {
     fontSize: 15,
-    color: '#444',
     fontWeight: '500',
   },
   saveButton: {
