@@ -40,5 +40,14 @@
     <!-- The root element for your Expo app. -->
     <div id="root"></div>
   <script src="/Knihovna-Emi/_expo/static/js/web/AppEntry-72b4bcdae3d786a3c75915c5eca57e2c.js" defer></script>
+<script>
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', function() {
+      navigator.serviceWorker.register('/Knihovna-Emi/sw.js')
+        .then(function(reg) { console.log('SW registrován:', reg.scope); })
+        .catch(function(err) { console.warn('SW chyba:', err); });
+    });
+  }
+</script>
 </body>
 </html>
