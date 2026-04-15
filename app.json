@@ -1,0 +1,32 @@
+{
+  "expo": {
+    "name": "Knihovna Emi",
+    "slug": "knihovna-emi",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "light",
+    "ios": {
+      "supportsTablet": true
+    },
+    "android": {
+      "package": "cz.knihovnaemi",
+      "adaptiveIcon": {
+        "backgroundColor": "#3498db"
+      }
+    },
+    "web": {
+      "bundler": "metro",
+      "backgroundColor": "#ffffff",
+      "baseUrl": "/Knihovna-Emi",
+      "output": "static",
+      "name": "Knihovna Emi",
+      "shortName": "Knihovna",
+      "description": "Osobní offline správce knihovny",
+      "themeColor": "#3498db",
+      "lang": "cs"
+    },
+    "plugins": [
+      "expo-document-picker"
+    ]
+  }
+}
