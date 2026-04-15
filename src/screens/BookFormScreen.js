@@ -168,7 +168,7 @@ export default function BookFormScreen({ route, navigation }) {
           ]}
           value={form.umisteni}
           onChangeText={(v) => handleChange('umisteni', v.toUpperCase())}
-          placeholder='Např. "A1B2C" nebo "X"'
+          placeholder='Např. "A1B2C", mimo "X"'
           placeholderTextColor={colors.textMuted}
           maxLength={5}
           editable={!umisteniLocked}
