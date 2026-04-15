@@ -18,7 +18,7 @@
       "bundler": "metro",
       "backgroundColor": "#ffffff",
       "baseUrl": "/Knihovna-Emi",
-      "output": "static",
+      "output": "single",
       "name": "Knihovna Emi",
       "shortName": "Knihovna",
       "description": "Osobní offline správce knihovny",
