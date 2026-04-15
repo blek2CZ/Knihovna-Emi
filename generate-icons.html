@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+  <meta charset="UTF-8" />
+  <title>Generátor ikon – Knihovna Emi</title>
+  <style>
+    body { font-family: sans-serif; padding: 20px; background: #f5f5f5; }
+    h2 { color: #3498db; }
+    canvas { border: 1px solid #ccc; margin: 10px; }
+    a { display: inline-block; margin: 8px 10px; padding: 8px 16px;
+        background: #3498db; color: #fff; text-decoration: none; border-radius: 6px; }
+    a:hover { background: #2980b9; }
+    .preview { margin-top: 20px; }
+  </style>
+</head>
+<body>
+  <h2>Generátor ikon – Knihovna Emi 📚</h2>
+  <p>Kliknutím na tlačítka stáhněte ikony a vložte je do složky <code>assets/</code> v projektu.</p>
+
+  <div class="preview">
+    <canvas id="canvas192" width="192" height="192"></canvas>
+    <canvas id="canvas512" width="512" height="512"></canvas>
+  </div>
+
+  <div id="links"></div>
+
+  <script>
+    function drawBookIcon(ctx, size) {
+      const s = size;
+
+      // ── Pozadí (modré, zaoblené) ──────────────────────────────────
+      const r = s * 0.18; // rádius zaoblení
+      ctx.beginPath();
+      ctx.moveTo(r, 0);
+      ctx.lineTo(s - r, 0);
+      ctx.quadraticCurveTo(s, 0, s, r);
+      ctx.lineTo(s, s - r);
+      ctx.quadraticCurveTo(s, s, s - r, s);
+      ctx.lineTo(r, s);
+      ctx.quadraticCurveTo(0, s, 0, s - r);
+      ctx.lineTo(0, r);
+      ctx.quadraticCurveTo(0, 0, r, 0);
+      ctx.closePath();
+      ctx.fillStyle = '#3498db';
+      ctx.fill();
+
+      // ── Tělo knihy (bílé) ─────────────────────────────────────────
+      const bx = s * 0.18;  // levý okraj
+      const by = s * 0.14;  // horní okraj
+      const bw = s * 0.64;  // šířka
+      const bh = s * 0.72;  // výška
+      const br = s * 0.04;  // zaoblení knihy
+
+      ctx.beginPath();
+      ctx.moveTo(bx + br, by);
+      ctx.lineTo(bx + bw - br, by);
+      ctx.quadraticCurveTo(bx + bw, by, bx + bw, by + br);
+      ctx.lineTo(bx + bw, by + bh - br);
+      ctx.quadraticCurveTo(bx + bw, by + bh, bx + bw - br, by + bh);
+      ctx.lineTo(bx + br, by + bh);
+      ctx.quadraticCurveTo(bx, by + bh, bx, by + bh - br);
+      ctx.lineTo(bx, by + br);
+      ctx.quadraticCurveTo(bx, by, bx + br, by);
+      ctx.closePath();
+      ctx.fillStyle = '#ffffff';
+      ctx.fill();
+
+      // ── Hřbet knihy (tmavomodrý pruh vlevo) ──────────────────────
+      ctx.fillStyle = '#2471a3';
+      ctx.fillRect(bx, by, s * 0.10, bh);
+
+      // ── Linka oddělující hřbet ─────────────────────────────────────
+      ctx.fillStyle = '#1a5276';
+      ctx.fillRect(bx + s * 0.10, by, s * 0.015, bh);
+
+      // ── Řádky textu (simulace stránek) ───────────────────────────
+      ctx.fillStyle = '#aed6f1';
+      const lineX = bx + s * 0.16;
+      const lineW = bw * 0.62;
+      const lineStartY = by + s * 0.13;
+      const lineGap = s * 0.085;
+      for (let i = 0; i < 7; i++) {
+        const w = i % 3 === 2 ? lineW * 0.55 : lineW; // každý třetí řádek kratší
+        ctx.fillRect(lineX, lineStartY + i * lineGap, w, s * 0.035);
+      }
+
+      // ── Záložka (červená páska vpravo nahoře) ────────────────────
+      const mx = bx + bw - s * 0.12;
+      ctx.fillStyle = '#e74c3c';
+      ctx.beginPath();
+      ctx.moveTo(mx, by);
+      ctx.lineTo(mx + s * 0.09, by);
+      ctx.lineTo(mx + s * 0.09, by + s * 0.25);
+      ctx.lineTo(mx + s * 0.045, by + s * 0.21);
+      ctx.lineTo(mx, by + s * 0.25);
+      ctx.closePath();
+      ctx.fill();
+    }
+
+    function createIcon(canvasId, size) {
+      const canvas = document.getElementById(canvasId);
+      const ctx = canvas.getContext('2d');
+      drawBookIcon(ctx, size);
+
+      const a = document.createElement('a');
+      a.download = `icon-${size}.png`;
+      a.href = canvas.toDataURL('image/png');
+      a.textContent = `⬇ Stáhnout icon-${size}.png`;
+      document.getElementById('links').appendChild(a);
+    }
+
+    createIcon('canvas192', 192);
+    createIcon('canvas512', 512);
+  </script>
+</body>
+</html>

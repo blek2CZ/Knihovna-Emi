@@ -70,10 +70,16 @@ export default function BookFormScreen({ route, navigation }) {
   const [errors, setErrors] = useState({});
   const [saving, setSaving] = useState(false);
 
-  // Automaticky nastaví umístění na "X" pro audio / e-knihu
+  // Automaticky nastaví umístění na "X" pro audio / e-knihu;
+  // při přepnutí na fyzickou knihu vyčistí pole pokud začíná X
   useEffect(() => {
     if (form.format === 'audio' || form.format === 'ekniha') {
       setForm((prev) => ({ ...prev, umisteni: 'X' }));
+    } else if (form.format === 'fyzicka') {
+      setForm((prev) => ({
+        ...prev,
+        umisteni: prev.umisteni.toUpperCase().startsWith('X') ? '' : prev.umisteni,
+      }));
     }
   }, [form.format]);
 

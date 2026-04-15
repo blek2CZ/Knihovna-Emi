@@ -4,9 +4,10 @@
 
 /**
  * Validuje pole umisteni podle pravidel:
- * - přesně "X" (velkou)
- * - nebo přesně 5 znaků [A-Z0-9]
- * - pokud je formát audio/ekniha, umisteni se nastaví automaticky na "X"
+ * - pokud je formát audio/ekniha → automaticky "X", validace se přeskakuje
+ * - pokud je formát fyzicka → nesmí začínat písmenem X (ani být jen "X")
+ *   musí být přesně 5 znaků [A-Z0-9] nezačínajících X
+ * - jinak → "X" nebo přesně 5 znaků [A-Z0-9]
  */
 export function validateUmisteni(umisteni, format) {
   // Audio a e-knihy mají umístění automaticky "X" – validace se přeskakuje
@@ -16,6 +17,23 @@ export function validateUmisteni(umisteni, format) {
 
   if (!umisteni || umisteni.trim() === '') {
     return { valid: false, error: 'Umístění je povinné.' };
+  }
+
+  // Fyzická kniha nesmí mít umístění začínající na X
+  if (format === 'fyzicka') {
+    if (umisteni.toUpperCase().startsWith('X')) {
+      return {
+        valid: false,
+        error: 'Fyzická kniha nemůže mít umístění začínající písmenem X.',
+      };
+    }
+    if (/^[A-Z0-9]{5}$/.test(umisteni)) {
+      return { valid: true };
+    }
+    return {
+      valid: false,
+      error: 'Umístění musí být přesně 5 velkých znaků [A-Z0-9] nezačínajících X (např. "A1B2C").',
+    };
   }
 
   if (umisteni === 'X') {
