@@ -1,0 +1,25 @@
+{
+  "name": "Knihovna Emi",
+  "short_name": "Knihovna",
+  "description": "Osobní offline správce knihovny",
+  "start_url": "/Knihovna-Emi/",
+  "display": "standalone",
+  "background_color": "#3498db",
+  "theme_color": "#3498db",
+  "orientation": "portrait-primary",
+  "lang": "cs",
+  "icons": [
+    {
+      "src": "/Knihovna-Emi/assets/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/Knihovna-Emi/assets/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
