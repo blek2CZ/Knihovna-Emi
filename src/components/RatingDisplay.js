@@ -7,6 +7,10 @@ import React from 'react';
 import { Text, StyleSheet } from 'react-native';
 
 export default function RatingDisplay({ hodnoceni, style }) {
+  if (hodnoceni === null || hodnoceni === undefined || hodnoceni === '') {
+    return <Text style={[styles.unrated, style]}>...</Text>;
+  }
+
   if (Number(hodnoceni) === 0) {
     return <Text style={[styles.dnf, style]}>DNF</Text>;
   }
@@ -18,6 +22,10 @@ export default function RatingDisplay({ hodnoceni, style }) {
 }
 
 const styles = StyleSheet.create({
+  unrated: {
+    color: '#aaa',
+    fontSize: 13,
+  },
   dnf: {
     color: '#e74c3c',
     fontWeight: 'bold',

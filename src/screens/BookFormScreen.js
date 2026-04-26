@@ -28,8 +28,9 @@ const FORMAT_ITEMS = [
   { label: 'E-kniha', value: 'ekniha' },
 ];
 
-// Možnosti hodnocení (0 = DNF, 1–5 = hvězdičky)
+// Možnosti hodnocení ('none' = nevyplněno, 0 = DNF, 1–5 = hvězdičky)
 const RATING_ITEMS = [
+  { label: '... (nevyplněno)', value: 'none' },
   { label: '0 – DNF (nedočteno)', value: 0 },
   { label: '1 ★☆☆☆☆', value: 1 },
   { label: '2 ★★☆☆☆', value: 2 },
@@ -46,7 +47,7 @@ const DEFAULT_FORM = {
   autor: '',
   nakladatelstvi: '',
   format: 'fyzicka',
-  hodnoceni: 3,
+  hodnoceni: 'none',
 };
 
 export default function BookFormScreen({ route, navigation }) {
@@ -63,7 +64,7 @@ export default function BookFormScreen({ route, navigation }) {
           autor: existingBook.autor ?? '',
           nakladatelstvi: existingBook.nakladatelstvi ?? '',
           format: existingBook.format ?? 'fyzicka',
-          hodnoceni: Number(existingBook.hodnoceni ?? 3),
+          hodnoceni: (existingBook.hodnoceni === null || existingBook.hodnoceni === undefined) ? 'none' : existingBook.hodnoceni,
         }
       : { ...DEFAULT_FORM }
   );
@@ -108,14 +109,14 @@ export default function BookFormScreen({ route, navigation }) {
         await updateBook({
           ...existingBook,
           ...form,
-          hodnoceni: Number(form.hodnoceni),
+          hodnoceni: form.hodnoceni === 'none' ? null : Number(form.hodnoceni),
           updated_at: now,
         });
       } else {
         await addBook({
           id: generateUUID(),
           ...form,
-          hodnoceni: Number(form.hodnoceni),
+          hodnoceni: form.hodnoceni === 'none' ? null : Number(form.hodnoceni),
           created_at: now,
           updated_at: now,
         });
@@ -229,7 +230,7 @@ export default function BookFormScreen({ route, navigation }) {
         />
 
         {/* ── HODNOCENÍ ── */}
-        <Text style={[styles.label, { color: colors.text }]}>Hodnocení *</Text>
+        <Text style={[styles.label, { color: colors.text }]}>Hodnocení</Text>
         <View style={[styles.pickerWrapper, { backgroundColor: colors.pickerBg, borderColor: colors.inputBorder }, errors.hodnoceni && styles.fieldError]}>
           <Picker
             selectedValue={form.hodnoceni}

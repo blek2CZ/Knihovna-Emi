@@ -78,10 +78,12 @@ export function validateBook(book) {
     errors.format = 'Formát je povinný.';
   }
 
-  // Hodnocení – musí být číslo 0–5
-  const h = Number(book.hodnoceni);
-  if (book.hodnoceni === undefined || book.hodnoceni === null || isNaN(h) || h < 0 || h > 5) {
-    errors.hodnoceni = 'Hodnocení musí být 0–5.';
+  // Hodnocení – nepovinné; pokud je vyplněno, musí být číslo 0–5
+  if (book.hodnoceni !== null && book.hodnoceni !== undefined && book.hodnoceni !== '' && book.hodnoceni !== 'none') {
+    const h = Number(book.hodnoceni);
+    if (isNaN(h) || h < 0 || h > 5) {
+      errors.hodnoceni = 'Hodnocení musí být 0–5.';
+    }
   }
 
   return errors;

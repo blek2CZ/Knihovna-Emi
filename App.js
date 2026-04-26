@@ -28,7 +28,14 @@ function LibraryStack() {
       <Stack.Screen
         name="BookList"
         component={HomeScreen}
-        options={{ title: 'Moje knihovna' }}
+        options={{
+          headerTitle: () => (
+            <Text style={{ alignItems: 'center' }}>
+              <Text style={{ color: '#fff', fontWeight: 'bold', fontSize: 18 }}>Moje knihovna{'\n'}</Text>
+              <Text style={{ color: 'rgba(255,255,255,0.75)', fontSize: 11 }}>Pro Emičku od Peťu</Text>
+            </Text>
+          ),
+        }}
       />
       <Stack.Screen
         name="BookForm"
