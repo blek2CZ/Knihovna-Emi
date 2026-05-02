@@ -28,15 +28,16 @@ const FORMAT_ITEMS = [
   { label: 'E-kniha', value: 'ekniha' },
 ];
 
-// Možnosti hodnocení ('none' = nevyplněno, 0 = DNF, 1–5 = hvězdičky)
+// Možnosti hodnocení ('none' = nevyplněno, 0 = ☆☆☆☆☆, 'dnf' = DNF, 1–5 = hvězdičky)
 const RATING_ITEMS = [
   { label: '... (nevyplněno)', value: 'none' },
-  { label: '0 – DNF (nedočteno)', value: 0 },
-  { label: '1 ★☆☆☆☆', value: 1 },
-  { label: '2 ★★☆☆☆', value: 2 },
-  { label: '3 ★★★☆☆', value: 3 },
-  { label: '4 ★★★★☆', value: 4 },
-  { label: '5 ★★★★★', value: 5 },
+  { label: 'DNF (nedočteno)', value: 'dnf' },
+  { label: '0 ☆☆☆☆☆', value: '0' },
+  { label: '1 ★☆☆☆☆', value: '1' },
+  { label: '2 ★★☆☆☆', value: '2' },
+  { label: '3 ★★★☆☆', value: '3' },
+  { label: '4 ★★★★☆', value: '4' },
+  { label: '5 ★★★★★', value: '5' },
 ];
 
 // Výchozí stav formuláře pro novou knihu
@@ -64,7 +65,7 @@ export default function BookFormScreen({ route, navigation }) {
           autor: existingBook.autor ?? '',
           nakladatelstvi: existingBook.nakladatelstvi ?? '',
           format: existingBook.format ?? 'fyzicka',
-          hodnoceni: (existingBook.hodnoceni === null || existingBook.hodnoceni === undefined) ? 'none' : existingBook.hodnoceni,
+          hodnoceni: (existingBook.hodnoceni === null || existingBook.hodnoceni === undefined) ? 'none' : String(existingBook.hodnoceni),
         }
       : { ...DEFAULT_FORM }
   );
@@ -109,14 +110,14 @@ export default function BookFormScreen({ route, navigation }) {
         await updateBook({
           ...existingBook,
           ...form,
-          hodnoceni: form.hodnoceni === 'none' ? null : Number(form.hodnoceni),
+          hodnoceni: form.hodnoceni === 'none' ? null : form.hodnoceni === 'dnf' ? 'dnf' : Number(form.hodnoceni),
           updated_at: now,
         });
       } else {
         await addBook({
           id: generateUUID(),
           ...form,
-          hodnoceni: form.hodnoceni === 'none' ? null : Number(form.hodnoceni),
+          hodnoceni: form.hodnoceni === 'none' ? null : form.hodnoceni === 'dnf' ? 'dnf' : Number(form.hodnoceni),
           created_at: now,
           updated_at: now,
         });

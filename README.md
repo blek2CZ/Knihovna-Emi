@@ -90,7 +90,7 @@ Knihovna Emi/
 | `autor`         | string                       | Autor (povinný)                          |
 | `nakladatelstvi`| string                       | Nakladatelství (nepovinné)               |
 | `format`        | `fyzicka` / `audio` / `ekniha` | Formát knihy                           |
-| `hodnoceni`     | number 0–5                   | 0 = DNF, 1–5 = hvězdičky                |
+| `hodnoceni`     | number 0–5 nebo `null`        | `null` = nevyplněno, 0 = DNF, 1–5 = hvězdičky |
 | `created_at`    | ISO 8601                     | Datum vytvoření                          |
 | `updated_at`    | ISO 8601                     | Datum poslední změny                     |
 
@@ -104,9 +104,11 @@ Knihovna Emi/
 - Pro format `audio` nebo `ekniha` se automaticky nastaví na `"X"`
 
 ### Hodnocení (`hodnoceni`)
+- **Nepovinné** – může zůstat nevyplněné
+- `null` (nevyplněno) → zobrazuje se `...`
 - `0` = DNF (Did Not Finish – nedočteno) → zobrazuje se červený text **DNF**
 - `1–5` = hvězdičky → zobrazuje se např. `★★★☆☆`
-- Výběr přes rozbalovací menu (ne klikatelné hvězdičky)
+- Výběr přes rozbalovací menu (včetně možnosti `...` pro zrušení hodnocení)
 
 ---
 

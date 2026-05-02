@@ -1,7 +1,8 @@
 /**
  * Komponenta pro zobrazení hvězdičkového hodnocení nebo "DNF".
- *   hodnoceni == 0  →  "DNF" (červeně)
- *   hodnoceni 1–5   →  hvězdičky ★★★☆☆
+ *   hodnoceni == 'dnf' →  červený text DNF
+ *   hodnoceni == 0    →  pět prázdných hvězdiček ☆☆☆☆☆
+ *   hodnoceni 1–5     →  hvězdičky ★★★☆☆
  */
 import React from 'react';
 import { Text, StyleSheet } from 'react-native';
@@ -11,8 +12,12 @@ export default function RatingDisplay({ hodnoceni, style }) {
     return <Text style={[styles.unrated, style]}>...</Text>;
   }
 
-  if (Number(hodnoceni) === 0) {
+  if (hodnoceni === 'dnf') {
     return <Text style={[styles.dnf, style]}>DNF</Text>;
+  }
+
+  if (Number(hodnoceni) === 0) {
+    return <Text style={[styles.stars, style]}>☆☆☆☆☆</Text>;
   }
 
   const filled = Math.min(5, Math.max(0, Number(hodnoceni)));

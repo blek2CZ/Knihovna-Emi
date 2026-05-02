@@ -78,11 +78,13 @@ export function validateBook(book) {
     errors.format = 'Formát je povinný.';
   }
 
-  // Hodnocení – nepovinné; pokud je vyplněno, musí být číslo 0–5
+  // Hodnocení – nepovinné; pokud je vyplněno, musí být 'dnf' nebo číslo 0–5
   if (book.hodnoceni !== null && book.hodnoceni !== undefined && book.hodnoceni !== '' && book.hodnoceni !== 'none') {
-    const h = Number(book.hodnoceni);
-    if (isNaN(h) || h < 0 || h > 5) {
-      errors.hodnoceni = 'Hodnocení musí být 0–5.';
+    if (book.hodnoceni !== 'dnf') {
+      const h = Number(book.hodnoceni);
+      if (isNaN(h) || h < 0 || h > 5) {
+        errors.hodnoceni = 'Hodnocení musí být 0–5.';
+      }
     }
   }
 

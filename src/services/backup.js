@@ -1,19 +1,50 @@
-/**
- * Exportní a importní operace (záloha dat).
- * Chování se liší podle platformy:
+﻿/**
+ * Exportni a importni operace (zaloha dat).
+ * Chovani se lisi podle platformy:
  *   - web:     Blob download / FileReader + file input
- *   - Android: expo-file-system + expo-sharing / expo-document-picker
+ *   - Android: expo-file-system (SAF nebo documentDirectory) + expo-sharing / expo-document-picker
  */
 import { Platform } from 'react-native';
-import * as FileSystem from 'expo-file-system';
-import * as Sharing from 'expo-sharing';
-import * as DocumentPicker from 'expo-document-picker';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { getBooks, importBooks } from './storage';
 
+// Nativni moduly se importuji jen na ne-webovych platformach (web je nepodporuje)
+const FileSystem = Platform.OS !== 'web' ? require('expo-file-system') : null;
+const Sharing = Platform.OS !== 'web' ? require('expo-sharing') : null;
+const DocumentPicker = Platform.OS !== 'web' ? require('expo-document-picker') : null;
+
+const BACKUP_DIR_KEY = 'backup_dir_uri';
+
+/** Vrati ulozene URI zalohovaci slozky (jen Android). */
+export async function getBackupDirUri() {
+  if (Platform.OS !== 'android') return null;
+  return await AsyncStorage.getItem(BACKUP_DIR_KEY);
+}
+
+/** Ulozi URI zalohovaci slozky (null = smazat nastaveni). */
+export async function setBackupDirUri(uri) {
+  if (uri) {
+    await AsyncStorage.setItem(BACKUP_DIR_KEY, uri);
+  } else {
+    await AsyncStorage.removeItem(BACKUP_DIR_KEY);
+  }
+}
+
 /**
- * Exportuje všechny knihy do souboru JSON.
- * Na webu spustí stažení souboru prohlížečem.
- * Na Androidu zapíše soubor do dočasného adresáře a nabídne sdílení.
+ * Zobrazi systemovy picker pro vyber slozky (Android SAF).
+ * Vrati URI zvolene slozky nebo null, pokud uzivatel zrusil.
+ */
+export async function pickBackupDir() {
+  if (Platform.OS !== 'android') return null;
+  const result = await FileSystem.StorageAccessFramework.requestDirectoryPermissionsAsync();
+  if (!result.granted) return null;
+  await setBackupDirUri(result.directoryUri);
+  return result.directoryUri;
+}
+
+/**
+ * Exportuje vsechny knihy do souboru JSON.
+ * Vrati { filename, savedTo } kde savedTo je citelny popis mista ulozeni.
  */
 export async function exportBooks() {
   const books = await getBooks();
@@ -21,7 +52,6 @@ export async function exportBooks() {
   const filename = `knihovna_emi_${new Date().toISOString().slice(0, 10)}.json`;
 
   if (Platform.OS === 'web') {
-    // Webové prostředí – stáhnout soubor přes Blob
     const blob = new Blob([json], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
     const anchor = document.createElement('a');
@@ -29,10 +59,26 @@ export async function exportBooks() {
     anchor.download = filename;
     anchor.click();
     URL.revokeObjectURL(url);
-    return { success: true };
+    return { filename, savedTo: 'Vychozi slozka stahovani prohlizece' };
   }
 
-  // Android / iOS – zapsat do dočasného souboru a sdílet
+  const dirUri = await getBackupDirUri();
+  if (dirUri) {
+    try {
+      const fileUri = await FileSystem.StorageAccessFramework.createFileAsync(
+        dirUri,
+        filename,
+        'application/json'
+      );
+      await FileSystem.writeAsStringAsync(fileUri, json, {
+        encoding: FileSystem.EncodingType.UTF8,
+      });
+      return { filename, savedTo: dirUri };
+    } catch {
+      // SAF selhalo - pokracujeme s fallbackem
+    }
+  }
+
   const fileUri = FileSystem.documentDirectory + filename;
   await FileSystem.writeAsStringAsync(fileUri, json, {
     encoding: FileSystem.EncodingType.UTF8,
@@ -42,89 +88,73 @@ export async function exportBooks() {
   if (canShare) {
     await Sharing.shareAsync(fileUri, {
       mimeType: 'application/json',
-      dialogTitle: 'Exportovat zálohu knihovny',
+      dialogTitle: 'Exportovat zalohu knihovny',
     });
   }
 
-  return { success: true };
+  return { filename, savedTo: null };
 }
 
 /**
- * Importuje knihy ze souboru JSON vybranéhoho uživatelem.
- * Vrátí { success, count } nebo { success: false, cancelled: true }.
- * Při neplatném formátu vyhodí chybu.
+ * Vybere soubor a vrati jeho obsah + jmeno, ale NEZPRACUJE ho.
+ * Vrati { content, filename } nebo null (zruseno).
  */
-export async function importBooksFromFile() {
+export async function pickBackupFile() {
   if (Platform.OS === 'web') {
-    // Webové prostředí – file input
-    return new Promise((resolve, reject) => {
+    return new Promise((resolve) => {
       const input = document.createElement('input');
       input.type = 'file';
       input.accept = '.json,application/json';
 
-      input.onchange = async (event) => {
+      let settled = false;
+      function settle(val) {
+        if (!settled) { settled = true; resolve(val); }
+      }
+
+      input.onchange = (event) => {
         const file = event.target.files[0];
-        if (!file) {
-          resolve({ success: false, cancelled: true });
-          return;
-        }
-
+        if (!file) { settle(null); return; }
         const reader = new FileReader();
-        reader.onload = async (e) => {
-          try {
-            const data = JSON.parse(e.target.result);
-            if (!Array.isArray(data)) {
-              reject(new Error('Neplatný formát souboru. Očekáváno pole knih (JSON array).'));
-              return;
-            }
-            await importBooks(data);
-            resolve({ success: true, count: data.length });
-          } catch (err) {
-            reject(err);
-          }
-        };
-
-        reader.onerror = () => reject(new Error('Nelze číst soubor.'));
+        reader.onload = (e) => settle({ content: e.target.result, filename: file.name });
+        reader.onerror = () => settle(null);
         reader.readAsText(file);
       };
 
-      // Detekce zrušení bez výběru souboru (fokus okna bez výběru)
-      window.addEventListener(
-        'focus',
-        () => {
-          setTimeout(() => {
-            if (!input.files || input.files.length === 0) {
-              resolve({ success: false, cancelled: true });
-            }
-          }, 500);
-        },
-        { once: true }
-      );
+      // Detekce zavření dialogu bez výběru souboru
+      window.addEventListener('focus', () => {
+        setTimeout(() => {
+          if (!input.files || input.files.length === 0) settle(null);
+        }, 400);
+      }, { once: true });
 
       input.click();
     });
   }
 
-  // Android / iOS – DocumentPicker
+  // Android / iOS - DocumentPicker
   const result = await DocumentPicker.getDocumentAsync({
     type: ['application/json', '*/*'],
     copyToCacheDirectory: true,
   });
 
-  if (result.canceled) {
-    return { success: false, cancelled: true };
-  }
+  if (result.canceled) return null;
 
-  const uri = result.assets[0].uri;
-  const jsonText = await FileSystem.readAsStringAsync(uri, {
+  const asset = result.assets[0];
+  const content = await FileSystem.readAsStringAsync(asset.uri, {
     encoding: FileSystem.EncodingType.UTF8,
   });
+  return { content, filename: asset.name || 'zaloha.json' };
+}
 
-  const data = JSON.parse(jsonText);
+/**
+ * Zpracuje (naimportuje) obsah souboru zalohy.
+ * Vrati pocet nactenych knih.
+ */
+export async function processImportContent(content) {
+  const data = JSON.parse(content);
   if (!Array.isArray(data)) {
-    throw new Error('Neplatný formát souboru. Očekáváno pole knih (JSON array).');
+    throw new Error('Neplatny format souboru. Ocekavano pole knih (JSON array).');
   }
-
   await importBooks(data);
-  return { success: true, count: data.length };
+  return data.length;
 }
